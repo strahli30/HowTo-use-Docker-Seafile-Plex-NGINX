@@ -1,0 +1,48 @@
+version: '3'
+
+networks:
+  extern:
+    external:
+      name: extern
+
+services:
+  plex:
+    image: plexinc/pms-docker
+    container_name: plex
+    networks:
+      extern:
+        aliases:
+          - plex
+    volumes:
+      - ./app/database:/config 
+      - ./app/transcode/temp:/transcode 
+      - <PFAD zu MEDIENDatein /mnt/hdd2/Medien...>:/data #hier liegen die Filme
+    ports:
+      #WICHTIGER HINWEIS: im Router muss Port 32400/tcp und 32400/udp freigegeben werden
+      - 32400:32400/tcp #for access to the Plex Media Server) [required]
+      - 3005:3005/tcp #for controlling Plex Home Theater via Plex Companion
+      - 8324:8324/tcp #for controlling Plex for Roku via Plex Companion
+      - 32469:32469/tcp #for access to the Plex DLNA Server
+      - 1900:1900/udp #for access to the Plex DLNA Server
+      - 32410:32410/udp #for current GDM network discovery
+      - 32412:32412/udp #for current GDM network discovery
+      - 32413:32413/udp #for current GDM network discovery
+      - 32414:32414/udp #for current GDM network discovery
+      - 33443:33443
+#      - 5343:5353/udp #for older Bonjour/Avahi network discovery
+    environment:
+      - TZ="Europe/Berlin"
+      - ADVERTISE_IP=http://<Domain bspw. plex.dyn.de>:32400/
+      - VIRTUAL_PORT=32400
+      - VIRTUAL_HOST=<Domain bspw. plex.dyn.de>
+      - LETSENCRYPT_HOST=<Domain bspw. plex.dyn.de>
+      - LETSENCRYPT_EMAIL=<eine Mailadresse bspw meinewegwerfadresse@ich.de>
+       #nur bei Neuanlegen des Servers wichtig um Server gene plex.tv zu legitimieren
+       #Eintrag wird bei registriertem Server ignoriert
+#      - PLEX_CLAIM=claim-xxxx_XXXXXX-ssL
+    hostname: SkodasPlex
+    devices:
+      - "/dev/dri:/dev/dri"
+    labels:
+      com.centurylinklabs.watchtower.enable: true
+    restart: unless-stopped
