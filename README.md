@@ -21,3 +21,32 @@ So that requests from the network are not blocked by the firewall, certain ports
 # Rebind protection
 
 In many routers you can set a rebind protection for the shares and accesses to services. This ensures that requests to the URL (e.g. seafile.dyndns.de) from your own network are not routed via the internet - i.e. only run in your own network.
+
+# Folder Structure
+
+the folder structure is based on three hard disks
+  - SSD: system disk on which the operating system runs
+  - HDD1: where encrypted files in Seafile are stored
+  - HDD2: where files are stored in plain text - helps to speed up the Plex system.
+Main folder 
+- /home/docker this is where all Docker config files are located.
+Mount folder
+- /mnt/hdd1 (HDD for the Seafile data)
+- /mnt/hdd2 (HDD for the unencrypted storage of the data (relevant for Plex))
+- /mnt/webdav (mount point to internally mount the Seafile data)
+- /mnt/webdavcache (Folder for the WebDav cache on the system disk)
+
+# Install Docker and Docker Compose (already available on Ubuntu)
+
+This procedure is only necessary if Docker and Docker-Compose are not already installed on the system. To test, the installed version can be displayed with the command docker -v and docker-compose -v. If no error message appears here, the following steps can be omitted.
+
+	apt-get update && apt-get -y upgrade
+	apt-get install -y curl && curl https://get.docker.com | bash
+	sudo apt-get -y install apt-transport-https ca-certificates curl software-properties-common
+	curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - apt-key fingerprint 0EBFCD88
+	apt-get install docker-compose
+	add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+	apt-get update
+	apt-get install -y docker-ce
+	apt-get install docker-compose
+  
