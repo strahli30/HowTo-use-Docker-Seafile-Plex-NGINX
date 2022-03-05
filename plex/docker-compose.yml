@@ -16,7 +16,7 @@ services:
     volumes:
       - ./app/database:/config 
       - ./app/transcode/temp:/transcode 
-      - <PFAD zu MEDIENDatein /mnt/hdd2/Medien...>:/data #hier liegen die Filme
+      - /PFAD/ZU/DEINEN/MEDIEN:/data #hier liegen die Filme
     ports:
       #WICHTIGER HINWEIS: im Router muss Port 32400/tcp und 32400/udp freigegeben werden
       - 32400:32400/tcp #for access to the Plex Media Server) [required]
@@ -32,15 +32,15 @@ services:
 #      - 5343:5353/udp #for older Bonjour/Avahi network discovery
     environment:
       - TZ="Europe/Berlin"
-      - ADVERTISE_IP=http://<Domain bspw. plex.dyn.de>:32400/
+      - ADVERTISE_IP=http://domain.de:32400/ # Domain bspw. plex.dyndns.de
       - VIRTUAL_PORT=32400
-      - VIRTUAL_HOST=<Domain bspw. plex.dyn.de>
-      - LETSENCRYPT_HOST=<Domain bspw. plex.dyn.de>
-      - LETSENCRYPT_EMAIL=<eine Mailadresse bspw meinewegwerfadresse@ich.de>
+      - VIRTUAL_HOST=domain.de # Domain bspw. plex.dyndns.de
+      - LETSENCRYPT_HOST=domain.de # Domain bspw. plex.dyndns.de
+      - LETSENCRYPT_EMAIL=mail@mail.com # eine Mailadresse bspw. meinewegwerfadresse@ich.de
        #nur bei Neuanlegen des Servers wichtig um Server gene plex.tv zu legitimieren
        #Eintrag wird bei registriertem Server ignoriert
 #      - PLEX_CLAIM=claim-xxxx_XXXXXX-ssL
-    hostname: SkodasPlex
+    hostname: myPlex # Name mit dem Plex in der Anwendung angezeigt wird - kann gern angepasst werden
     devices:
       - "/dev/dri:/dev/dri"
     labels:
