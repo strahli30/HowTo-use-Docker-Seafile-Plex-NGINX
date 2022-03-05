@@ -22,20 +22,6 @@ So that requests from the network are not blocked by the firewall, certain ports
 
 In many routers you can set a rebind protection for the shares and accesses to services. This ensures that requests to the URL (e.g. seafile.dyndns.de) from your own network are not routed via the internet - i.e. only run in your own network.
 
-# Folder Structure
-
-the folder structure is based on three hard disks
-  - SSD: system disk on which the operating system runs
-  - HDD1: where encrypted files in Seafile are stored
-  - HDD2: where files are stored in plain text - helps to speed up the Plex system.
-Main folder 
-- /home/docker this is where all Docker config files are located.
-Mount folder
-- /mnt/hdd1 (HDD for the Seafile data)
-- /mnt/hdd2 (HDD for the unencrypted storage of the data (relevant for Plex))
-- /mnt/webdav (mount point to internally mount the Seafile data)
-- /mnt/webdavcache (Folder for the WebDav cache on the system disk)
-
 # Install Docker and Docker Compose (already available on Ubuntu)
 
 This procedure is only necessary if Docker and Docker-Compose are not already installed on the system. To test, the installed version can be displayed with the command docker -v and docker-compose -v. If no error message appears here, the following steps can be omitted.
