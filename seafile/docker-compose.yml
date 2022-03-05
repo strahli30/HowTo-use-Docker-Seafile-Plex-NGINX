@@ -1,0 +1,79 @@
+version: '3'
+
+networks:
+  seaf-net:
+  extern:
+    external:
+      name: extern
+      
+services:
+  seaf-db:
+    image: mariadb:10.1
+    container_name: seaf-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=DeinSicheresPasswort # Requested, set the root's password of MySQL service. unbedingt anpassen - ist das Standartpasswort zur DatenBank - muss bei Seafile und db identisch sein
+      - MYSQL_LOG_CONSOLE=true
+    volumes:
+      - ./app/db:/var/lib/mysql  # Requested, specifies the path to MySQL data persistent store.
+    networks:
+      - seaf-net
+    labels:
+      com.centurylinklabs.watchtower.enable: true
+    restart: unless-stopped
+
+  seaf-memcached:
+    image: memcached:1.5.6
+    container_name: seaf-memcached
+    entrypoint: memcached -m 256
+    networks:
+      - seaf-net
+    labels:
+      com.centurylinklabs.watchtower.enable: true
+    restart: unless-stopped
+          
+  seaf-app:
+    image: seafileltd/seafile-mc:latest
+    container_name: seaf-app
+    networks:
+      seaf-net:
+      extern:
+        aliases:
+          - seaf
+    depends_on:
+      - seaf-db
+      - seaf-memcached
+    expose:
+      - "80"
+      - "8000"
+      - "8082"
+      - "8080"
+#    ports:
+#      - 8080:8080 #Freigabe Port wegen MountDAVFS intern nötig
+    volumes:
+     #WICHTIG: bei erstem Start nur die oberste Zeile aktivieren
+     #Ordner-Separierung kann dann nach zweiten Schritt beginnen
+     #vor zweitem Start erste Zeile auskommentieren und dafür die folgende Auskkommentierungen löschen
+      - ./app:/shared
+#      - ./app/logs:/shared/logs
+#      - ./app/nginx:/shared/nginx
+#      - ./app/seafile/ccnet:/shared/seafile/ccnet
+#      - ./app/seafile/conf:/shared/seafile/conf
+#      - ./app/seafile/seahub-data:/shared/seafile/seahub-data
+#      - /pfad/zum/datenspeicher/seafile-data:/shared/seafile/seafile-data
+      # Template ermöglicht Betrieb hinter Nginx-Proxy-Server
+      - ./nginx.template/seafile.nginx.conf.template:/templates/seafile.nginx.conf.template:ro
+    environment:
+      - DB_HOST=seaf-db
+      - DB_ROOT_PASSWD=DeinSicheresPasswort #unbedingt anpassen - ist das Standartpasswort zur DatenBank - muss bei Seafile und db identisch sein
+      - TIME_ZONE=Europe/Berlin
+      - SEAFILE_ADMIN_EMAIL=admin #unbedingt anpassen - ist der Standartnutzername bei einem Admin-Resret
+      - SEAFILE_ADMIN_PASSWORD=passwort #unbedingt anpassen - ist das Standartpasswort bei einem Admin-Resret
+      - SEAFILE_SERVER_HOSTNAME=domain.de # Domain bspw. seafile.dyndns.de
+      - VIRTUAL_HOST=domain.de # Domain bspw. seafile.dyndns.de
+      - VIRTUAL_NETWORK=extern
+      - VIRTUAL_PORT=80
+      - LETSENCRYPT_HOST=domain.de # Domain bspw. seafile.dyndns.de
+      - LETSENCRYPT_EMAIL=mail@mail.com # eine Mailadresse bspw. meinewegwerfadresse@ich.de
+    labels:
+      com.centurylinklabs.watchtower.enable: true
+    restart: unless-stopped
