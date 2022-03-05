@@ -7,7 +7,7 @@ After registration, a separate URL should be created for each service that is ru
   - plex.dyndns.de
 # Set a fixed IP address for the server in the router
 
-To ensure that the server can always be reached reliably, the computer must always have the same IP address in its own network. For this purpose, the router (e.g. Fritzbox) is set so that the server always receives a fixed IP (e.g. 192.168.178.40).
+To ensure that the server is always reachable, the computer must always have the same IP address in its own network. For this purpose, the router (e.g. Fritzbox) is set so that the server always receives a fixed IP (e.g. 192.168.178.40).
 
 # Port Releases in the Router
 
