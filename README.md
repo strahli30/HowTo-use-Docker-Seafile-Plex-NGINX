@@ -20,11 +20,11 @@ To ensure that requests from the network are not blocked by the firewall, certai
 
 # Rebind protection
 
-In many routers you can set a rebind protection for the shares and accesses to services. This ensures that requests to the URL (e.g. seafile.dyndns.de) from your own network are not routed via the internet - i.e. only run in your own network.
+In many routers, you can set a rebind protection. This prevents requests to the URL (e.g. seafile.dyndns.de) from your own network from being routed over the Internet - i.e. they only run in your own network. 
 
 # Install Docker and Docker Compose (already available on Ubuntu)
 
-This procedure is only necessary if Docker and Docker-Compose are not already installed on the system. To test, the installed version can be displayed with the command docker -v and docker-compose -v. If no error message appears here, the following steps can be omitted.
+The installation is only necessary if Docker and Docker-Compose are not installed on the system yet. For testing the installed version can be displayed with the command docker -v and docker-compose -v. If no error message is displayed, the following steps can be skipped.
 
 	apt-get update && apt-get -y upgrade
 	apt-get install -y curl && curl https://get.docker.com | bash
@@ -61,7 +61,7 @@ NGINX will manage incoming and outgoing traffic and use LetsEncrypt to obtain SS
 
 # Seafile
 
-A little more manual work is needed to start the Seafile container. First of all, the docker-compose.yml file has to be adapted for the first start, then some changes have to be made and some Seafile config files have to be adapted.
+Some manual work is necessary to start the Seafile container. First, the docker-compose.yml file must be adapted for the first start. After that, some Seafile config files have to be adapted and the docker-compose.yml file fine-tuned if necessary.
 
 - Adjusting the docker-compose.yml file
 		
@@ -180,10 +180,10 @@ A little more manual work is needed to start the Seafile container. First of all
 
 # Plex
 
-Some manual work is also necessary to start the Plex container. First, the docker-compose.yml file must be adapted for the first start. For the first start, a claim code is necessary so that the login to your own account works.
+Some manual work is necessary to start the Plex container. First, the docker-compose.yml file must be changed for the first start. On the first start, a claim code is necessary so that the login to your own account works.
 
-Call plex.tv/claim/ and copy and paste the code into the following file
-(Attention: Code is only valid for 4 minutes - do it last)
+Call up plex.tv/claim/ copy the displayed code and paste it into the following file, among others
+(Attention: Code is only valid for 4 minutes)
 
 		sudo nano /home/docker/plex/docker-compose.yml
 
