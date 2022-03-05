@@ -36,3 +36,177 @@ This procedure is only necessary if Docker and Docker-Compose are not already in
 	apt-get install -y docker-ce
 	apt-get install docker-compose
   
+# Basic settings
+
+Create folder /home/docker
+
+	sudo mkdir -pv /home/docker
+
+Clone Repository
+
+	cd /home/docker
+	sudo git clone https://github.com/strahli30/HowTo-use-Docker-Seafile-Plex-NGINX.git && \
+	sudo mv HowTo-use-Docker-Seafile-Plex-NGINX/* ./ && \
+	sudo rm -r HowTo-use-Docker-Seafile-Plex-NGINX/
+
+Start basic installation (create folder structure, install Webmin and davFS)
+
+	sudo ./systemset.sh start
+
+# NGINX | LetyEncrypt | Launch Watchtower
+
+NGINX will manage incoming and outgoing traffic and use LetsEncrypt to obtain SSL certificates fully automatically and renew them as needed. Watchtower will keep all running Docker containers up to date. The entire package is started with one line:
+
+	sudo docker-compose -f /home/docker/tools/docker-compose.yml up -d
+
+# Seafile
+
+A little more manual work is needed to start the Seafile container. First of all, the docker-compose.yml file has to be adapted for the first start, then some changes have to be made and some Seafile config files have to be adapted.
+
+- Adjusting the docker-compose.yml file
+		
+		sudo nano /home/docker/seafile/docker-compose.yml 
+
+	adapt the following lines:
+	
+		services:
+		  db:
+		  […]
+		    environment:
+		      - MYSQL_ROOT_PASSWORD=YourSecurePassword # change this password.
+		  […]
+		  seafile:
+		  […]
+		    environment:
+		  […]
+		      - DB_ROOT_PASSWD=YourSecurePassword # use the same password as above
+		      - SEAFILE_ADMIN_EMAIL=admin # must be adapted - this is the user name.
+		      - SEAFILE_ADMIN_PASSWORD=password # must be adapted - is the password
+		      - SEAFILE_SERVER_HOSTNAME=seafile.dyndns.de # URL of DynDNS-Dienst
+		      - VIRTUAL_HOST=seafile.dyndns.de # URL of DynDNS-Dienst
+		      - LETSENCRYPT_HOST=seafile.dyndns.de # URL of DynDNS-Dienst
+		      - LETSENCRYPT_EMAIL=meinewegwerfadresse@ich.de  # your mailadress
+
+- now Seafile can start for the first time - without the detach flag "-d" to observe the complete start-up
+
+		sudo docker-compose -f /home/docker/seafile/docker-compose.yml up
+		
+- after the complete start, the container is stopped with Ctrl + C and cleaned up with the following command:
+
+		sudo docker-compose -f /home/docker/seafile/docker-compose.yml down
+
+- Adjusting the docker-compose.yml 
+
+	The following adaptation of the docker-compose.yml ensures that the database and config files are still stored on the SSD with the operating system while the data is stored on an HDD. It is important that the folder /mnt/hdd1/seafile-data exists. This folder will store all data on Seafile.
+
+		sudo nano /home/docker/seafile/docker-compose.yml 
+	
+	adjust the following lines:
+	
+		services:
+		[…]
+  		  seafile:
+		[…]
+    		    volumes:
+          	    #WICHTIG: bei erstem Start nur die oberste Zeile aktivieren
+          	    #Ordner-Separierung kann dann nach zweiten Schritt beginnen
+          	    #vor zweitem Start erste Zeile auskommentieren und dafür die folgende 
+		    #Auskkommentierung löschen
+	 	      #- ./app:/shared
+		       - ./app/logs:/shared/logs
+		       - ./app/seafile/ccnet:/shared/seafile/ccnet
+		       - ./app/seafile/conf:/shared/seafile/conf
+		       - ./app/seafile/seahub-data:/shared/seafile/seahub-data
+		       - /mnt/hdd1/seafile-data:/shared/seafile/seafile-data
+
+- for webDAV access to the files, copy the following file from the templates to the conf folder
+
+		sudo cp /home/docker/seafile/config.files.seafile/seafdav.conf /home/docker/seafile/app/seafile/conf/
+
+- some URL adjustments
+		
+	ccnet.conf:
+
+		sudo nano /home/docker/seafile/app/seafile/conf/ccnet.conf
+	
+	Insert the following lines - do not change the rest of the file!
+	
+		# Change ONLY Service_URL to https and without PortNumber
+		[General]
+		SERVICE_URL = https://seafile.dyndns.de # Enter URL from DynDNS service
+		
+	seahub_settings.py:
+	
+		sudo nano /home/docker/seafile/app/seafile/conf/seahub_settings.py
+		
+	Insert the following lines - do not change the rest of the file!
+	
+		#ONLY change URL of DynDNS service from http to https
+		FILE_SERVER_ROOT = "https://seafile.dyndns.de/seafhttp"
+
+		#Insert this line with the URL of the DynDNS service
+		SERVICE_URL = 'https://seafile.dyndns.de/seafhttp'
+		
+- Adjusting the Seafile settings
+
+		sudo nano /home/docker/seafile/app/seafile/conf/seafile.conf
+	
+	Important: do not change the database section (starts from [database])! Add the following information:
+			
+		[fileserver]
+		# tcp port for fileserver
+		port = 8082
+
+		# Set maximum upload file size to 4000M=4GB
+		max_upload_size=40000
+
+		# Set maximum download directory size to 4000M=4GB.
+		max_download_dir_size=40000
+
+		#Set uploading time limit to 10800s = 3h
+		web_token_expire_time=10800
+
+		[quota]
+		# default user quota in GB, integer only
+		default = 5
+
+		[history]
+		# set a default history length limit for all libraries. Default no limit 
+		keep_days = 30 #days of history to keep
+
+- Finally, restart Seafile and run it as a service
+
+		sudo docker-compose -f /home/docker/seafile/docker-compose.yml up -d
+
+# Plex
+
+Some manual work is also necessary to start the Plex container. First, the docker-compose.yml file must be adapted for the first start. For the first start, a claim code is necessary so that the login to your own account works.
+
+Call plex.tv/claim/ and copy and paste the code into the following file
+(Attention: Code is only valid for 4 minutes - do it last)
+
+		sudo nano /home/docker/plex/docker-compose.yml
+
+Add the following information:
+
+	services:
+	  plex:
+	    [...]
+	    volumes:
+	    [...]
+	      - <PATH to MEDIA files /mnt/hdd2/media...>:/data #the films are located here
+	    [...]
+	    environment:
+	    [...]
+	      - ADVERTISE_IP=http://plex.dyndns.de:32400/ # enter URL from DynDNS service
+	      - VIRTUAL_PORT=32400
+	      - VIRTUAL_HOST=plex.dyndns.de # Enter URL from DynDNS service
+	      - LETSENCRYPT_HOST=plex.dyndns.de # Enter URL of DynDNS service
+	      - LETSENCRYPT_EMAIL=meinewegwerfadresse@ich.de # your mail address
+	       #only important when creating a new server to legitimise server gene plex.tv
+	       #entry will be ignored if server is registered - can be commented out
+	      - PLEX_CLAIM=claim-xxxx_XXXX-ssL #paste the code from plex.tv/claim/ completely here
+
+Start Plex container and call it up in the browser after a few minutes - and ready hurray
+
+	sudo docker-compose -f /home/docker/plex/docker-compose.yml up -d
