@@ -11,12 +11,12 @@ To ensure that the server is always reachable, the computer must always have the
 
 # Port Releases in the Router
 
-So that requests from the network are not blocked by the firewall, certain ports must be released for requests from outside to the IP address of the router. The following ports are important:
+To ensure that requests from the network are not blocked by the firewall, certain ports must be released for requests from outside to the IP address of the router. The following ports are important:
 
-- Port 80 (TCP) - mandatory for HTTP requests.
-- Port 443 (TCP) - mandatory for HTTPS requests
-- Port 32400 (TCP) - optionally necessary for Plex, so that Plex apps (e.g. FireStick) can work.
-- Port 32400 (UDP) - optionally required for Plex to work (e.g. FireStick)
+- Port 80 (TCP)    	- mandatory for HTTP requests.
+- Port 443 (TCP)   	- mandatory for HTTPS requests
+- Port 32400 (TCP) 	- optionally necessary for Plex, so that Plex apps (e.g. FireStick, some TVs) are working.
+- Port 32400 (UDP)	- optionally necessary for Plex, so that Plex apps (e.g. FireStick, some TVs) are working.
 
 # Rebind protection
 
