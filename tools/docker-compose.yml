@@ -1,0 +1,75 @@
+version: '2'
+
+networks:
+  extern:
+    external:
+      name: extern
+
+services:
+  nginx:
+    image: jwilder/nginx-proxy:alpine
+    container_name: proxy-nginx
+    networks:
+      - extern
+    volumes:
+      # Ordner für persistente Speicherung der Containerdaten
+      - ./app/certs:/etc/nginx/certs:ro
+      - ./app/conf:/etc/nginx/conf.d
+      - ./app/vhosts:/etc/nginx/vhost.d
+      - ./app/html:/usr/share/nginx/html
+      - ./app/dhparam:/etc/nginx/dhparam
+      # Template ermöglicht den Uplaod von Dateien > 1MB
+      - ./nginx.template/client_max_body_size.conf:/etc/nginx/conf.d/client_max_body_size.conf:ro
+      # Docker-Daten lesen
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    ports:
+      - 80:80
+      - 443:443
+    labels:
+      - com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy=true
+      - com.centurylinklabs.watchtower.enable=true
+    restart: unless-stopped
+
+  certs:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    container_name: letsencrypt-nginx
+    depends_on:
+      - nginx
+    networks:
+      - extern
+    volumes_from:
+      - nginx
+    volumes:
+      - ./app/certs:/etc/nginx/certs:rw
+     # Docker-Daten lesen
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    restart: unless-stopped
+  
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    networks:
+      - extern
+    volumes:
+       # Docker-Daten und Zeitzone System lesen 
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /etc/timezone:/etc/timezone:ro
+#    command: portainer plex seafile #Positivliste - nur dies Container werden aktualisiert
+    environment:
+#      - WATCHTOWER_SCHEDULE=0 0 0 * * *
+      - WATCHTOWER_POLL_INTERVAL=3600
+#      - WATCHTOWER_NO_PULL
+      - WATCHTOWER_CLEANUP=true
+#      - WATCHTOWER_MONITOR_ONLY=true
+#      - WATCHTOWER_LABEL_ENABLE=true
+#      - WATCHTOWER_DEBUG=true
+#      - WATCHTOWER_NOTIFICATIONS=email
+#      - WATCHTOWER_NOTIFICATION_EMAIL_FROM=<MAILADRESSE>
+#      - WATCHTOWER_NOTIFICATION_EMAIL_TO=<MAILADRESSE>
+#      - WATCHTOWER_NOTIFICATION_EMAIL_SERVER=<SMTP-SERVER>
+#      - WATCHTOWER_NOTIFICATION_EMAIL_SERVER_USER=<***>
+#      - WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PASSWORD=<***>
+#      - TZ=Europe/Berlin
+    restart: unless-stopped
