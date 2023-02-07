@@ -36,7 +36,6 @@ services:
       - VIRTUAL_PORT=32400
       - VIRTUAL_HOST=domain.de # Domain bspw. plex.dyndns.de
       - LETSENCRYPT_HOST=domain.de # Domain bspw. plex.dyndns.de
-      - LETSENCRYPT_EMAIL=mail@mail.com # eine Mailadresse bspw. meinewegwerfadresse@ich.de
        #nur bei Neuanlegen des Servers wichtig um Server gene plex.tv zu legitimieren
        #Eintrag wird bei registriertem Server ignoriert
 #      - PLEX_CLAIM=claim-xxxx_XXXXXX-ssL
