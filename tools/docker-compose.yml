@@ -1,27 +1,27 @@
-version: '2'
+version: '3'
 
 networks:
   extern:
     external:
       name: extern
 
+
 services:
   nginx:
-    image: jwilder/nginx-proxy:alpine
-    container_name: proxy-nginx
+    image: nginxproxy/nginx-proxy
+    container_name: nginx-app
     networks:
       - extern
     volumes:
-      # Ordner für persistente Speicherung der Containerdaten
-      - ./app/certs:/etc/nginx/certs:ro
-      - ./app/conf:/etc/nginx/conf.d
-      - ./app/vhosts:/etc/nginx/vhost.d
-      - ./app/html:/usr/share/nginx/html
-      - ./app/dhparam:/etc/nginx/dhparam
-      # Template ermöglicht den Uplaod von Dateien > 1MB
-      - ./nginx.template/client_max_body_size.conf:/etc/nginx/conf.d/client_max_body_size.conf:ro
+      - ./data/nginx/certs:/etc/nginx/certs:ro
+      - ./data/nginx/conf:/etc/nginx/conf.d
+      - ./data/nginx/vhosts:/etc/nginx/vhost.d
+      - ./data/nginx/html:/usr/share/nginx/html
+      - ./data/nginx/dhparam:/etc/nginx/dhparam
       # Docker-Daten lesen
       - /var/run/docker.sock:/tmp/docker.sock:ro
+      # Template ermöglicht den Uplaod von Dateien > 1MB
+      - ./nginx.template/client_max_body_size.conf:/etc/nginx/conf.d/client_max_body_size.conf:ro
     ports:
       - 80:80
       - 443:443
@@ -31,8 +31,8 @@ services:
     restart: unless-stopped
 
   certs:
-    image: jrcs/letsencrypt-nginx-proxy-companion
-    container_name: letsencrypt-nginx
+    image: nginxproxy/acme-companion
+    container_name: nginx-letsencrypt
     depends_on:
       - nginx
     networks:
@@ -40,13 +40,16 @@ services:
     volumes_from:
       - nginx
     volumes:
-      - ./app/certs:/etc/nginx/certs:rw
-     # Docker-Daten lesen
+      - ./data/nginx/certs:/etc/nginx/certs:rw
+      - ./data/acme:/etc/acme.sh
+      # Docker-Daten lesen
       - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - DEFAULT_EMAIL=strahli31+letsencrypt@yahoo.com
     labels:
       - com.centurylinklabs.watchtower.enable=true
-    restart: unless-stopped
-  
+    restart: always # unless-stopped
+    
   watchtower:
     image: containrrr/watchtower
     container_name: watchtower
