@@ -45,7 +45,7 @@ services:
       # Docker-Daten lesen
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
-      - DEFAULT_EMAIL=mail@mail.com
+      - DEFAULT_EMAIL=mail@mail.com # eine Mailadresse bspw. meinewegwerfadresse@ich.de
     labels:
       - com.centurylinklabs.watchtower.enable=true
     restart: always # unless-stopped
