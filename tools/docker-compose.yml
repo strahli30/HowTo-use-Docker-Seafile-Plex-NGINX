@@ -45,7 +45,7 @@ services:
       # Docker-Daten lesen
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
-      - DEFAULT_EMAIL=strahli31+letsencrypt@yahoo.com
+      - DEFAULT_EMAIL=mail@mail.com
     labels:
       - com.centurylinklabs.watchtower.enable=true
     restart: always # unless-stopped
