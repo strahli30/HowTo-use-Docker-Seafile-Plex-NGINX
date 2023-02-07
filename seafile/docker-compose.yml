@@ -73,7 +73,6 @@ services:
       - VIRTUAL_NETWORK=extern
       - VIRTUAL_PORT=80
       - LETSENCRYPT_HOST=domain.de # Domain bspw. seafile.dyndns.de
-      - LETSENCRYPT_EMAIL=mail@mail.com # eine Mailadresse bspw. meinewegwerfadresse@ich.de
     labels:
       com.centurylinklabs.watchtower.enable: true
     restart: unless-stopped
