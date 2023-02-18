@@ -51,7 +51,7 @@ Clone Repository
 
 Start basic installation (create folder structure, install Webmin and davFS)
 
-	sudo ./systemset.sh start
+	sudo chmod +x systemset.sh && sudo ./systemset.sh start
 
 # NGINX | LetyEncrypt | Launch Watchtower
 
