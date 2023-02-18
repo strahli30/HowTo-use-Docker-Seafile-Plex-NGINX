@@ -26,15 +26,9 @@ In many routers, you can set a rebind protection. This prevents requests to the 
 
 The installation is only necessary if Docker and Docker-Compose are not installed on the system yet. For testing the installed version can be displayed with the command docker -v and docker-compose -v. If no error message is displayed, the following steps can be skipped.
 
-	apt-get update && apt-get -y upgrade
-	apt-get install -y curl && curl https://get.docker.com | bash
-	sudo apt-get -y install apt-transport-https ca-certificates curl software-properties-common
-	curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - apt-key fingerprint 0EBFCD88
-	apt-get install docker-compose
-	add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-	apt-get update
-	apt-get install -y docker-ce
-	apt-get install docker-compose
+	apt-get update && apt-get -y upgrade && /
+	apt-get install -y docker && /
+	apt-get install -y docker-compose
   
 # Basic settings
 
@@ -44,14 +38,15 @@ Create folder /home/docker
 
 Clone Repository
 
-	cd /home/docker
+	cd /home/docker && /
 	sudo git clone https://github.com/strahli30/HowTo-use-Docker-Seafile-Plex-NGINX.git && \
 	sudo mv HowTo-use-Docker-Seafile-Plex-NGINX/* ./ && \
 	sudo rm -r HowTo-use-Docker-Seafile-Plex-NGINX/
 
 Start basic installation (create folder structure, install Webmin and davFS)
 
-	sudo chmod +x systemset.sh && sudo ./systemset.sh start
+	sudo chmod +x systemset.sh && /
+	sudo ./systemset.sh start
 
 # NGINX | LetyEncrypt | Launch Watchtower
 
