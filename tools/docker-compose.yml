@@ -1,4 +1,4 @@
-version: '3'
+version: '2'
 
 networks:
   extern:
@@ -26,7 +26,6 @@ services:
       - 80:80
       - 443:443
     labels:
-      - com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy=true
       - com.centurylinklabs.watchtower.enable=true
     restart: unless-stopped
 
@@ -37,17 +36,18 @@ services:
       - nginx
     networks:
       - extern
-    volumes_from:
-      - nginx
     volumes:
       - ./data/nginx/certs:/etc/nginx/certs:rw
+      - ./data/nginx/vhosts:/etc/nginx/vhost.d
+      - ./data/nginx/html:/usr/share/nginx/html
       - ./data/acme:/etc/acme.sh
       # Docker-Daten lesen
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
-      - DEFAULT_EMAIL=mail@mail.com # eine Mailadresse bspw. meinewegwerfadresse@ich.de
+      - DEFAULT_EMAIL==mail@mail.com # eine Mailadresse bspw. meinewegwerfadresse@ich.de
+      - NGINX_PROXY_CONTAINER=nginx-app
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.enable=false
     restart: always # unless-stopped
     
   watchtower:
